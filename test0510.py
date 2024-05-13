@@ -25,7 +25,7 @@ positions_df = pd.DataFrame(data)
 # from args import *  # 導入args.py中data、positions_df、regions_df
 
 # 設定 Streamlit 的網頁標題
-st.title('當月獎金計算器')
+st.title('當月獎金計算')
 st.write('*非過年期台灣區非保障一般職員，排除海外部、定製部*')
 # st.image(r'C:\Users\11021249\Desktop\alan\logic.png')  # 複製絕對路徑完前面加r就不用取改裡面斜線
 st.image(r'logic.png')  # 複製絕對路徑完前面加r就不用取改裡面斜線
