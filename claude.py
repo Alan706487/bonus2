@@ -101,5 +101,5 @@ def main():
 
         st.write(f"**总奖金: {total_bonus:.0f}**")
 
-    if __name__ == '__main__':
-        main()
+if __name__ == '__main__':
+    main()
