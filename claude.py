@@ -48,8 +48,21 @@ class BonusCalculator(BonusData):
 
         return total_bonus, ind_bonus, perf_bonus
 
+    def calculate_accumulated_bonus(self, year, month, region, position, prev_month1_perf_rate, prev_month2_perf_rate):
+        accumulated_bonus = 0
+        for i, perf_rate in enumerate([prev_month1_perf_rate, prev_month2_perf_rate], start=1):
+            if month - i >= 1:
+                m2 = self.adj_df[(self.adj_df['年'] == year) & (self.adj_df['月份'] == month - i)]['m2'].values[0]
+                position_data = self.get_bonus_values(region, position)
+                perf_bonus = position_data['職位份額'] * position_data['成果占比'] * (1 + position_data['成果倍數'] * (perf_rate - 1)) * m2
+                accumulated_bonus += perf_bonus
+        return accumulated_bonus
+
 # Streamlit 表现层
 def main():
+    # 使用者輸入當季前兩個月的成果達成率
+    prev_month1_perf_rate = st.number_input('上上個月成果達成率（輸入百分比值,例如150表示150%）', min_value=0, value=100) / 100
+    prev_month2_perf_rate = st.number_input('上個月成果達成率（輸入百分比值,例如150表示150%）', min_value=0, value=100) / 100
     st.title('当月奖金计算器')
     st.write('*台湾区非保障一般职员，排除海外部、定制部*')
 
@@ -68,10 +81,17 @@ def main():
     ind_rate = st.number_input('指标达成率（输入百分比值，例如150表示150%）', min_value=0, value=100) / 100
     perf_rate = st.number_input('成果达成率（输入百分比值，例如150表示150%）', min_value=0, value=100) / 100
     accumulated_bonus = st.number_input('当季累积成果奖金(累积奖金)', min_value=0, value=0)
+    
 
-    # 计算总奖金与其组成
+    # # 计算总奖金与其组成
+    # total_bonus, ind_bonus, perf_bonus = calculator.calculate_bonus(year, month, region, position, ind_rate, perf_rate, accumulated_bonus)
+
+    # 計算累積獎金
+    accumulated_bonus = calculator.calculate_accumulated_bonus(year, month, region, position, prev_month1_perf_rate, prev_month2_perf_rate)
+    
+    # 計算總獎金與其組成
     total_bonus, ind_bonus, perf_bonus = calculator.calculate_bonus(year, month, region, position, ind_rate, perf_rate, accumulated_bonus)
-
+    
     # 输出结果
     st.write(f'您选择的是：{year} 年 {month} 月')
     st.write(f"**月份调整乘数**")
