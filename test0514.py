@@ -20,6 +20,31 @@ adj_data = {
 }
 adj_df = pd.DataFrame(adj_data)
 
+
+# 新增年份的函數 先創造新的年資料表格再按axis=0按照相同欄位合併
+def add_year_data(df, year, m1_data, m2_data):
+    new_data = {
+        '年': [year] * 12,
+        '月份': list(range(1, 13)),
+        'm1': m1_data,
+        'm2': m2_data
+    }
+    new_df = pd.DataFrame(new_data)
+    return pd.concat([df, new_df], ignore_index=True)
+
+
+# 刪除年份的函數 用filter篩選出要的年份留下
+def remove_year_data(df, year):
+    return df[df['年'] != year]
+
+
+# # 新增2026年的數據
+# m1_2026 = [1] * 12
+# m2_2026 = [1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3]
+# adj_df = add_year_data(adj_df, 2026, m1_2026, m2_2026)
+#
+# # 刪除2024年的數據
+# adj_df = remove_year_data(adj_df, 2024)
 # 年、月份選擇框
 year = st.selectbox('選擇年份', adj_df['年'].unique())
 month = st.selectbox('選擇月份', adj_df['月份'].unique())
