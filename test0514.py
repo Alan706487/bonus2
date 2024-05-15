@@ -5,6 +5,8 @@ import streamlit as st
 st.title('當月獎金計算器')
 # 設定 Streamlit 的網頁副標題 說明計算器適用限制
 st.write('*台灣區非保障一般職員，排除海外部、定製部*')
+# 加入計算規則說明
+st.image(r'logic0514.png')
 
 
 # 創建年、月調整乘數對照表
