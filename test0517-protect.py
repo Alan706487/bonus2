@@ -3,7 +3,12 @@ import streamlit as st
 from datetime import datetime
 
 # 設置頁面背景色為白色,文字為黑色
-st.set_page_config(page_title='當月獎金計算器', page_icon=':moneybag:', layout='wide', initial_sidebar_state='auto', menu_items=None)
+st.set_page_config(page_title='當月獎金計算器', page_icon=':moneybag:', layout='wide', initial_sidebar_state='auto', menu_items={
+    'Get Help': 'https://www.example.com/help',
+    'Report a bug': 'https://www.example.com/bug',
+    'About': '這是一個當月獎金計算器應用'
+}
+)
 
 # 密碼保護
 def check_password():
