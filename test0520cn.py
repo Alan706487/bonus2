@@ -6,6 +6,7 @@ from datetime import datetime
 # 設定 Streamlit 的網頁標題
 st.title('當月獎金計算器')
 # 設定 Streamlit 的網頁副標題 說明計算器適用限制
+st.write('*台灣事業部、業管部電訪組(不考慮新人成果獎金保障階段)*')
 
 # 創建年、月調整乘數對照表
 adj_data = {
@@ -18,6 +19,11 @@ adj_df = pd.DataFrame(adj_data)
 
 # 創建職位的獎金參數對照表
 data = {
+    '職位': ['電訪專員', '產品顧問', '資深顧問', '高級顧問', '業務', '區域業務'],
+    '指標占比': [1, 0.7, 0.7, 0.7, 0.3, 0.3],
+    '成果占比': [0, 0.3, 0.3, 0.3, 0.7, 0.7],
+    '指標倍數': [3, 3, 3, 3, 1, 1],
+    '成果倍數': [0, 3, 3, 3, 3, 3]
 }
 positions_df = pd.DataFrame(data)
 
@@ -32,12 +38,31 @@ def get_m_values(year, month):
 
 
 # 定義獎金參數提取函式
+def get_bonus_values(position):
+    bonus_data = positions_df[positions_df['職位'] == position]
+    return bonus_data['指標占比'].values[0], bonus_data['成果占比'].values[0], bonus_data['指標倍數'].values[0], bonus_data['成果倍數'].values[0]
 
 
 # 定義獎金計算函式
+def calculate_total_bonus(indicator_per, perform_per, indicator_multi, perform_multi,
                           indicator_ach_rate, perform_ach_rate, accumulated_bonus, m1, m2):
     indicator_bonus = position_quota * indicator_per * (1 + indicator_multi * (indicator_ach_rate - 1)) * m1
+
+    # if current_month % 3 == 0: # current_month = 3,6,9,12
+    #     perform_bonus = position_quota * perform_per * (1 + perform_multi * (perform_ach_rate - 1)) * m2
+    # else:  # max((perform_multi-1), 0) 避免像電訪員指標倍數本身是0被減到<0
+    #     if (1 + max((perform_multi-1), 0) * (perform_ach_rate - 1)) < (1 + perform_multi * (perform_ach_rate - 1)):
+    #         perform_multi -= 1
+    #     else:
+    #         perform_bonus = position_quota * perform_per * (1 + perform_multi * (perform_ach_rate - 1)) * m2
+    # if current_month % 3 != 0: # current_month != 3,6,9,12
+    #     if (1 + max((perform_multi - 1), 0) * (perform_ach_rate - 1)) < (1 + perform_multi * (perform_ach_rate - 1)):
+    #         perform_multi -= 1
     perform_bonus = position_quota * perform_per * (1 + perform_multi * (perform_ach_rate - 1)) * m2
+
+
+        # perform_bonus = position_quota * perform_per * min((1 + perform_multi * (perform_ach_rate - 1)), (1 + max((perform_multi-1), 0) * (perform_ach_rate - 1))) * m2
+
     total_bonus = indicator_bonus + max(0, perform_bonus - accumulated_bonus)
     return total_bonus, indicator_bonus, perform_bonus
 
@@ -49,6 +74,9 @@ with col1:
 with col2:
     month = st.selectbox('選擇月份', adj_df['月份'].unique(), index=current_month - 1)
 with col3:
+    # region = st.selectbox("選擇區域", positions_df['區域'].unique())
+    position_quota = st.number_input('職位份額', min_value=0, value=0)  # 大陸讓使用者自訂
+
 with col4:
     position = st.selectbox('選擇職位', positions_df['職位'].unique())
 
@@ -56,15 +84,24 @@ with col4:
 m1, m2 = get_m_values(year, month)
 
 # 獲取特定職位的各獎金參數
+indicator_per, perform_per, indicator_multi, perform_multi = get_bonus_values(position)
 
 # 使用兩列布局(指標、成果獎金計算過程在右邊)
 col1, col2 = st.columns(2)
+# for i in list(positions_df['職位']):
+#     indicator_per, perform_per, indicator_multi, perform_multi = get_bonus_values(i)
+#     print(perform_multi)
 
 # 第一列放使用者輸入(左邊)
 with col1:
     indicator_ach_rate = st.number_input('指標達成率（輸入百分比值，例如150表示150%）', min_value=0, value=100) / 100
     perform_ach_rate = st.number_input('成果達成率（輸入百分比值，例如150表示150%）', min_value=0, value=100) / 100
     accumulated_bonus = st.number_input('當季累積成果獎金(累積獎金)', min_value=0, value=0)
+
+# 大陸特殊裩則
+if current_month % 3 != 0: # current_month != 3,6,9,12
+    if (1 + max((perform_multi - 1), 0) * (perform_ach_rate - 1)) < (1 + perform_multi * (perform_ach_rate - 1)):
+        perform_multi -= 1
 
 # 第二列放計算結果(右邊)
 with col2:
@@ -81,6 +118,7 @@ with col2:
         f"{position_quota * perform_per * (1 + perform_multi * (perform_ach_rate - 1)) * m2:.0f}</span>", unsafe_allow_html=True)
 
     # 獲取總獎金與其組成
+    total_bonus, indicator_bonus, perform_bonus = calculate_total_bonus(indicator_per, perform_per, indicator_multi, perform_multi,
                                                                         indicator_ach_rate, perform_ach_rate, accumulated_bonus, m1, m2)
     st.write(" ")
     st.write("")
