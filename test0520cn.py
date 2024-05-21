@@ -47,27 +47,13 @@ def get_bonus_values(position):
 def calculate_total_bonus(indicator_per, perform_per, indicator_multi, perform_multi,
                           indicator_ach_rate, perform_ach_rate, accumulated_bonus, m1, m2):
     indicator_bonus = position_quota * indicator_per * (1 + indicator_multi * (indicator_ach_rate - 1)) * m1
-
-    # if current_month % 3 == 0: # current_month = 3,6,9,12
-    #     perform_bonus = position_quota * perform_per * (1 + perform_multi * (perform_ach_rate - 1)) * m2
-    # else:  # max((perform_multi-1), 0) 避免像電訪員指標倍數本身是0被減到<0
-    #     if (1 + max((perform_multi-1), 0) * (perform_ach_rate - 1)) < (1 + perform_multi * (perform_ach_rate - 1)):
-    #         perform_multi -= 1
-    #     else:
-    #         perform_bonus = position_quota * perform_per * (1 + perform_multi * (perform_ach_rate - 1)) * m2
-    # if current_month % 3 != 0: # current_month != 3,6,9,12
-    #     if (1 + max((perform_multi - 1), 0) * (perform_ach_rate - 1)) < (1 + perform_multi * (perform_ach_rate - 1)):
-    #         perform_multi -= 1
     perform_bonus = position_quota * perform_per * (1 + perform_multi * (perform_ach_rate - 1)) * m2
-
-
-        # perform_bonus = position_quota * perform_per * min((1 + perform_multi * (perform_ach_rate - 1)), (1 + max((perform_multi-1), 0) * (perform_ach_rate - 1))) * m2
-
     total_bonus = indicator_bonus + max(0, perform_bonus - accumulated_bonus)
     return total_bonus, indicator_bonus, perform_bonus
 
+
 # 整個網頁置中，但能自由設定比例布局
-c1, c2, c3 = st.columns((1, 2, 1))
+c1, c2, c3 = st.columns((1, 2.5, 1))
 with c1:
     st.empty()
 with c2:
@@ -103,7 +89,7 @@ with c2:
         st.write('<br>', unsafe_allow_html=True)
 
     # 使用兩列布局(指標、成果獎金計算過程在右邊)
-    col1, col2 = st.columns((1,1.3))
+    col1, col2 = st.columns((1, 2.2))
     # 第一列放使用者輸入(左邊)
     with col1:
         # #為了讓使用者可以輸入任意位數的小數，indicator_ach_rate、perform_ach_rate 改用text_input才能存所有位數，
@@ -125,7 +111,8 @@ with c2:
     # 大陸特殊規則 每季前兩個月成果獎金是min(2n,3n)，成果獎金 = 2n if perform_ach_rate>1 else 3n，每季第三個月一樣是3n
     # 要寫在這因為perform_ach_rate已被定義 且實際計算與顯示用到的perform_multi、calculate_total_bonus都在下面，在這邊寫才能影響到
     # max((perform_multi-1), 0) 避免像電訪員指標倍數本身是0被減到<0
-    if current_month % 3 != 0:  # current_month != 3,6,9,12
+    # 注意是控制使用者輸入的month 不是current_month
+    if month % 3 != 0:  # month != 3,6,9,12
         if (1 + max((perform_multi - 1), 0) * (perform_ach_rate - 1)) < (1 + perform_multi * (perform_ach_rate - 1)):
             perform_multi -= 1
 

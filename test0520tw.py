@@ -53,8 +53,9 @@ def calculate_total_bonus(position_quota, indicator_per, perform_per, indicator_
     total_bonus = indicator_bonus + max(0, perform_bonus - accumulated_bonus)
     return total_bonus, indicator_bonus, perform_bonus
 
+
 # 整個網頁置中，但能自由設定比例布局
-c1, c2, c3 = st.columns((1, 2, 1))
+c1, c2, c3 = st.columns((1, 2.5, 1))
 with c1:
     st.empty()
 with c2:
@@ -90,7 +91,7 @@ with c2:
         st.write('<br>', unsafe_allow_html=True)
 
     # 使用兩列布局(指標、累積成果獎金計算過程在右邊)
-    col1, col2 = st.columns((1,1.3))
+    col1, col2 = st.columns((1, 2.2))
     # 第一列放使用者輸入(左邊)
     with col1:
         # #為了讓使用者可以輸入任意位數的小數，indicator_ach_rate、perform_ach_rate 改用text_input才能存所有位數，
