@@ -78,7 +78,7 @@ col1, col2 = st.columns(2)
 
 # 第一列放使用者輸入(左邊)
 with col1:
-    indicator_ach_rate = st.number_input('指標達成率（輸入百分比值，例如150表示150%）', min_value=0, value=100) / 100
+    indicator_ach_rate = st.number_input('指標達成率（輸入百分比值，例如150表示150%）', min_value=0.0, value=100.0, format="%.10f") / 100
     perform_ach_rate = st.number_input('成果達成率（輸入百分比值，例如150表示150%）', min_value=0, value=100) / 100
     accumulated_bonus = st.number_input('當季累積成果獎金(累積獎金)', min_value=0, value=0)
 
