@@ -3,21 +3,19 @@ import streamlit as st
 from datetime import datetime
 from decimal import Decimal
 
-
-st.set_page_config(layout="wide")  # 為了之後要自由配置版面的顯示大小，預設用到全部版面
-
+# 為了之後要自由配置版面的顯示大小，預設用到全部版面
+st.set_page_config(layout="wide")
 
 # 創建年、月調整乘數對照表
-adj_data = {
+adj_df = pd.DataFrame({
     '年': [2024] * 12 + [2025] * 12,
     '月份': list(range(1, 13)) * 2,
     'm1': [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     'm2': [0, 1, 2, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 1, 2, 1, 2, 3, 1, 2, 3, 1, 2, 3]
-}
-adj_df = pd.DataFrame(adj_data)
+})
 
 # 創建職位的獎金參數對照表
-data = {
+positions_df = pd.DataFrame({
     '區域': ['北', '中南', '北', '中南', '北', '中南', '北', '中南', '北', '中南', '北', '中南'],
     '職位': ['電訪專員', '電訪專員', '產品顧問', '產品顧問', '資深顧問', '資深顧問', '高級顧問', '高級顧問', '業務', '業務', '區域業務', '區域業務'],
     '職位份額': [14000, 13000, 16000, 15000, 18000, 17000, 20000, 19000, 22000, 21000, 24000, 23000],
@@ -25,19 +23,17 @@ data = {
     '成果占比': [0, 0, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.7, 0.7, 0.7, 0.7],
     '指標倍數': [3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1],
     '成果倍數': [0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3]
-}
-positions_df = pd.DataFrame(data)
+})
 
 # 獲取當前年和月
-current_year = datetime.now().year
-current_month = datetime.now().month
-
+current_year, current_month = datetime.now().year, datetime.now().month
 
 # 定義提取m1、m2的函式
 @st.cache_data
 def get_m_values(year, month):
     m1_m2_data = adj_df[(adj_df['年'] == year) & (adj_df['月份'] == month)]
-    return m1_m2_data['m1'].values[0], m1_m2_data['m2'].values[0]
+    # return m1_m2_data['m1'].values[0], m1_m2_data['m2'].values[0]
+    return m1_m2_data.iloc[0][['m1', 'm2']]  # 返回series 但分別對元素賦值後會是int
 
 
 # 定義獎金參數提取函式
@@ -84,7 +80,7 @@ with c2:
     # 獲取特定職位的各獎金參數
     position_quota, indicator_per, perform_per, indicator_multi, perform_multi = get_bonus_values(region, position)
 
-
+    # 讓selectbox跟inout之間、"指標獎金"跟selectbox之間不要太擠，
     c1, c2 = st.columns(2)
     with c1:
         # st.empty()
@@ -129,8 +125,8 @@ with c2:
             <div style='text-align: center; font-size: 35px;'>
                 <strong>當月獎金: {total_bonus:,.0f}</strong>
             </div>
-            # """, unsafe_allow_html=True)  # 調整置中、大小、粗體
-
+             """, unsafe_allow_html=True)  # 調整置中、大小、粗體
+    # 使用expander隱藏詳細過程
     with st.expander("點擊查看詳細過程", expanded=False):  # 預設本就是 expanded=False
         st.write("")  # 在此添加一行空內容
         st.write(f'您選擇的是：{year} 年 {month} 月')
