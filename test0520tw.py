@@ -18,7 +18,7 @@ adj_df = pd.DataFrame({
 positions_df = pd.DataFrame({
     '區域': ['北', '中南', '北', '中南', '北', '中南', '北', '中南', '北', '中南', '北', '中南'],
     '職位': ['電訪專員', '電訪專員', '產品顧問', '產品顧問', '資深顧問', '資深顧問', '高級顧問', '高級顧問', '業務', '業務', '區域業務', '區域業務'],
-    '職位份額': [14000, 13000, 16000, 15000, 18000, 17000, 20000, 19000, 22000, 21000, 24000, 23000],
+    '職位份額': [14000, 13000, 20000, 19000, 18000, 17000, 20000, 19000, 28000, 27000, 24000, 23000],
     '指標占比': [1, 1, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.3, 0.3, 0.3, 0.3],
     '成果占比': [0, 0, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.7, 0.7, 0.7, 0.7],
     '指標倍數': [3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1],
@@ -59,8 +59,12 @@ c1, c2, c3 = st.columns((1, 2.5, 1))
 with c1:
     st.empty()
 with c2:
+
     # 設定 Streamlit 的網頁標題
-    st.title('獎金試算器')
+    st.write("<h1 style='font-size: 44px;'>獎金簡易試算器<span style='font-size: 30px;'>(參考用)</span></h1>", unsafe_allow_html=True)
+    # 附註:*6月啟用
+    st.write(f"<span style='font-size:22px'>**:red-background[*6月啟用]**</span>", unsafe_allow_html=True)
+
     # 設定 Streamlit 的網頁副標題 說明計算器適用限制
     st.write('*台灣事業部、業管部電訪組(不考慮新人成果獎金保障階段)*')
 
@@ -73,7 +77,10 @@ with c2:
     with col3:
         region = st.selectbox("選擇區域", positions_df['區域'].unique())
     with col4:
-        position = st.selectbox('選擇職位', positions_df['職位'].unique())
+        # position = st.selectbox('選擇職位', positions_df['職位'].unique())
+        # 6月規則只剩產品顧問、無資深、高級顧問
+        position = st.selectbox('選擇職位',
+                                positions_df[(positions_df['職位'] != '資深顧問') & (positions_df['職位'] != '高級顧問')]['職位'].unique())
 
     # 獲取 m1 和 m2 值
     m1, m2 = get_m_values(year, month)
@@ -127,6 +134,13 @@ with c2:
                 <strong>當月獎金: {total_bonus:,.0f}</strong>
             </div>
              """, unsafe_allow_html=True)  # 調整置中、大小、粗體
+        # 附註計算限制
+        st.write(f"""
+                       <div style='text-align: center; font-size: 15px;'>
+                           *獎金金額不包含出缺勤、收款賞罰、獎懲等計算
+                       </div>
+                        """, unsafe_allow_html=True)
+
     # 使用expander隱藏詳細過程
     with st.expander("點擊查看詳細過程", expanded=False):  # 預設本就是 expanded=False
         st.write("")  # 在此添加一行空內容
