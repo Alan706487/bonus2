@@ -178,7 +178,7 @@ with c2:
                                           (positions_df['職位'] != '高級顧問') &
                                           (positions_df['職位'] != '區域業務')]['職位'].unique()
 
-        # 避免某地區沒有職位，取不到值，
+        # 避免某地區沒有職位，取不到值
         if len(filtered_positions) == 0:
             # 要給以下設定否則會取不到值
             position = ''
