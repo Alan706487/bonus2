@@ -156,17 +156,34 @@ region_codes = {
 #     '越南': adj_df_viet,
 #     '泰國': adj_df_thai
 
+# # 使用 st.empty() 创建一个占位符
+# input_placeholder = st.empty()
+#
+# # 在占位符中显示文本输入框
+# user_input = input_placeholder.text_input("请输入文字:")
+#
+# # 当用户输入文字后，隐藏文本输入框
+# if user_input:
+#     input_placeholder.empty()
+#     st.success("你输入的文字是: " + user_input)
 # 使用者輸入驗證碼 不要讓輸入框那麼長
 c1, c2, c3 = st.columns((1, 0.5, 1))
 with c2:
-    user_input = st.text_input('請輸入您的區域驗證碼來訪問試算器:', '')
+    # 使用 st.empty() 创建一个占位符
+    input_placeholder = st.empty()
+    # 在占位符中显示文本输入框
+    user_input = input_placeholder.text_input('請輸入您的區域驗證碼來訪問試算器:', '')
+    # user_input = st.empty().text_input('請輸入您的區域驗證碼來訪問試算器:', '')
 
 # 檢查驗證碼並設定區域
 if user_input in region_codes:
     region = region_codes[user_input]
-    c1, c2, c3 = st.columns((1, 0.5, 1))
-    with c2:
-        st.success(f"驗證成功！歡迎訪問 **{region}** 的試算器。")
+    # 当用户输入文字后，清空了佔位符，從而隐藏文本输入框
+    input_placeholder.empty()
+
+    c1, c2, c3 = st.columns((1, 0.75, 1))
+    # with c2:
+        # st.success(f"驗證成功！歡迎訪問 **{region}** 的試算器。")
     # print(region)
 
     # 以下是該區域的試算器相關代碼
@@ -181,7 +198,8 @@ if user_input in region_codes:
         # 設定 Streamlit 的網頁標題
         st.write("<h1 style='font-size: 44px;'>獎金簡易試算器<span style='font-size: 30px;'>(參考用)</span></h1>", unsafe_allow_html=True)
         # 附註:*6月啟用
-        st.write(f"<span style='font-size:22px'>**:red-background[*6月啟用]**</span>", unsafe_allow_html=True)
+        st.write(f"<span style='font-size:22px'>**:red-background[*6月啟用]**</span>",end='', unsafe_allow_html=True)
+        # st.success(f"驗證成功！歡迎訪問 **{region}** 的試算器。")
 
         # 設定 Streamlit 的網頁副標題 說明計算器適用限制
         st.write('*海外事業部*')
@@ -377,6 +395,3 @@ else:
         c1, c2, c3 = st.columns((1, 0.5, 1))
         with c2:
             st.error("無效的驗證碼，請重新輸入！")  # 如果沒有輸入或驗證碼無效，不顯示試算器介面
-
-
-
