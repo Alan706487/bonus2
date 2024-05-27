@@ -86,9 +86,12 @@ adj_dfs = {
 positions_df = pd.DataFrame({
     'Region': ['Overseas (Taiwan)', 'Overseas (Taiwan)', 'Overseas (Taiwan)', 'Overseas (Taiwan)', 'Singapore', 'Singapore', 'Malaysia', 'Philippines', 'Philippines', 'Philippines', 'Philippines',
             'Indonesia', 'Indonesia', 'Indonesia', 'Indonesia', 'India', 'India', 'India', 'India', 'Vietnam', 'Vietnam', 'Vietnam', 'Vietnam', 'Thailand', 'Thailand', 'Thailand', 'Thailand'],
-    'Position': ['Telemarketer', 'Product Consultant', 'Senior Consultant', 'Expert Consultant', 'Sales', 'Regional Sales', 'Regional Sales', 'Telemarketer', 'Product Consultant', 'Sales', 'Regional Sales',
-            'Telemarketer', 'Product Consultant', 'Sales', 'Regional Sales', 'Telemarketer', 'Product Consultant', 'Sales', 'Regional Sales', 'Telemarketer', 'Product Consultant', 'Sales', 'Regional Sales',
-            'Telemarketer', 'Product Consultant', 'Sales', 'Regional Sales'],
+    'Position': [
+        'Call Center Executive', 'Product Consultant', 'Junior Product Consultant', 'Senior Product Consultant', 'Sales Representative', 'Territory Sales Representative',
+        'Territory Sales Representative', 'Call Center Executive', 'Product Consultant', 'Sales Representative', 'Territory Sales Representative', 'Call Center Executive',
+        'Product Consultant', 'Sales Representative', 'Territory Sales Representative', 'Call Center Executive', 'Product Consultant', 'Sales Representative',
+        'Territory Sales Representative', 'Call Center Executive', 'Product Consultant', 'Sales Representative', 'Territory Sales Representative', 'Call Center Executive',
+        'Product Consultant', 'Sales Representative', 'Territory Sales Representative'],
     'Position Quota': [16000, 18000, 20000, 22000, 1800, 1800, 2500, 25000, 32000, 39000, 50000,
               3300000, 4100000, 4300000, 5200000, 27000, 35000, 38000, 40000, 7500000, 10000000,
               12000000, 15000000, 18000, 22000, 24000, 31000],
@@ -190,9 +193,9 @@ if user_input in region_codes:
             # 6月規則只剩產品顧問、無資深、高級顧問
             # 各國有的職位不同，要篩選出特定區域的職位讓使用者選，'同時'排除資深、高級、區域業務
             filtered_positions = positions_df[(positions_df['Region'] == region) &
-                                              (positions_df['Position'] != 'Senior Consultant') &
-                                              (positions_df['Position'] != 'Expert Consultant') &
-                                              (positions_df['Position'] != 'Regional Sales')]['Position'].unique()
+                                              (positions_df['Position'] != 'Junior Product Consultant') &
+                                              (positions_df['Position'] != 'Senior Product Consultant') &
+                                              (positions_df['Position'] != 'Territory Sales Representative')]['Position'].unique()
 
             # 避免某地區沒有職位，取不到值
             if len(filtered_positions) == 0:
