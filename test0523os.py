@@ -141,66 +141,38 @@ region_codes = {
     '1': '新加坡',
     '2': '馬來西亞',
     '3': '菲律賓',
-    '4': '印度',
-    '5': '印尼',
+    '4': '印尼',
+    '5': '印度',
     '6': '越南',
     '7': '泰國'
     # 可以繼續添加其他區域和驗證碼
 }
-# '海外(在台)': adj_df_ost,
-#     '新加坡': adj_df_sig,
-#     '馬來西亞': adj_df_mal,
-#     '菲律賓': adj_df_phi,
-#     '印度': adj_df_india,
-#     '印尼': adj_df_indo,
-#     '越南': adj_df_viet,
-#     '泰國': adj_df_thai
 
-# # 使用 st.empty() 创建一个占位符
-# input_placeholder = st.empty()
-#
-# # 在占位符中显示文本输入框
-# user_input = input_placeholder.text_input("请输入文字:")
-#
-# # 当用户输入文字后，隐藏文本输入框
-# if user_input:
-#     input_placeholder.empty()
-#     st.success("你输入的文字是: " + user_input)
+
 # 使用者輸入驗證碼 不要讓輸入框那麼長
 c1, c2, c3 = st.columns((1, 0.5, 1))
 with c2:
-    # 使用 st.empty() 创建一个占位符
+    # 使用 st.empty() 創建一个占位符
     input_placeholder = st.empty()
-    # 在占位符中显示文本输入框
+    # 在占位符中顯示文本输入框
     user_input = input_placeholder.text_input('請輸入您的區域驗證碼來訪問試算器:', '')
-    # user_input = st.empty().text_input('請輸入您的區域驗證碼來訪問試算器:', '')
 
 # 檢查驗證碼並設定區域
 if user_input in region_codes:
     region = region_codes[user_input]
-    # 当用户输入文字后，清空了佔位符，從而隐藏文本输入框
+    # 當用户輸入文字後，清空了佔位符，從而隐藏文本输入框
     input_placeholder.empty()
-
-    c1, c2, c3 = st.columns((1, 0.75, 1))
-    # with c2:
-        # st.success(f"驗證成功！歡迎訪問 **{region}** 的試算器。")
-    # print(region)
 
     # 以下是該區域的試算器相關代碼
     # 需要根據區域調整的參數或功能，你可以在這裡加入
     # 可以使用區域變量 `region` 來加載和顯示特定區域的數據
     # 整個網頁置中，但能自由設定比例布局
-    c1, c2, c3 = st.columns((1, 2.5, 1))
-    # with c1:
-    #     st.empty()
+    c1, c2, c3 = st.columns((1, 1.5, 1))  # tw、cn 2.5
     with c2:
-
         # 設定 Streamlit 的網頁標題
         st.write("<h1 style='font-size: 44px;'>獎金簡易試算器<span style='font-size: 30px;'>(參考用)</span></h1>", unsafe_allow_html=True)
         # 附註:*6月啟用
-        st.write(f"<span style='font-size:22px'>**:red-background[*6月啟用]**</span>",end='', unsafe_allow_html=True)
-        # st.success(f"驗證成功！歡迎訪問 **{region}** 的試算器。")
-
+        st.write(f"<span style='font-size:22px'>**:red-background[*6月啟用]**</span>", unsafe_allow_html=True)
         # 設定 Streamlit 的網頁副標題 說明計算器適用限制
         st.write('*海外事業部*')
 
@@ -215,7 +187,9 @@ if user_input in region_codes:
         with col3:
             # region = st.selectbox("選擇區域", positions_df['區域'].unique())
             # region = st.selectbox("選擇區域", region_codes[user_input])
+            # 選的東西options 要能迭代 如[region]=['泰國']才能完整取出"泰國"，只放region='泰國'，會視為兩個元素，'泰'、'國'
             region = st.selectbox("選擇區域", [region])
+            # region = st.selectbox("選擇區域", [region], help='區域為預設', disabled=True)
             # 獲取 m1 和 m2 值
             m1, m2 = get_m_values(region, year, month)
         with col4:
@@ -228,7 +202,7 @@ if user_input in region_codes:
 
             # 避免某地區沒有職位，取不到值
             if len(filtered_positions) == 0:
-                # 要給以下設定否則會取不到值
+                # 要給以下設定否則會取不到值報錯
                 position = ''
                 position_quota, indicator_per, perform_per, indicator_multi, perform_multi = 0, 0, 0, 0, 0
                 st.warning("所選區域沒有可選的職位,無法計算獎金。")
@@ -240,7 +214,7 @@ if user_input in region_codes:
 
         # 當沒有職位可以選時(選到空值時)，以下都不執行，反之都執行
         if position != '':
-            # # 讓selectbox跟input之間、"指標獎金"跟selectbox之間不要太擠，
+            # # 讓selectbox跟input達成率之間、"指標獎金"跟selectbox之間不要太擠，
             # c1, c2 = st.columns(2)
             # with c1:
             #     # st.empty()
@@ -249,16 +223,16 @@ if user_input in region_codes:
             #     # st.empty()
             #     st.write('<br>', unsafe_allow_html=True)
             # 使用兩列布局(指標、累積成果獎金計算過程在右邊)
-            col1, col2 = st.columns((1, 2.2))
+            col1, col2 = st.columns((1, 2))
             # 第一列放使用者輸入(左邊)
             with col1:
-                # st.write('<br>', unsafe_allow_html=True)
+                st.write('<br>', unsafe_allow_html=True)  # 讓selectbox跟input達成率之間不要太擠
                 # #為了讓使用者可以輸入任意位數的小數，indicator_ach_rate、perform_ach_rate 改用text_input才能存所有位數，
                 # number_input只能輸入小數點後兩位(調format也只能強制輸入固定位數)
                 # 並用Decimal保留精度
                 # 缺點是text_input沒有微調按鍵
                 indicator_ach_rate = st.text_input('指標達成率(%)', value='100', help='請輸入百分比值,例如131.0781表示131.0781%')
-                # st.write('<br><br>', unsafe_allow_html=True)
+                # st.write('<br>', unsafe_allow_html=True)
                 perform_ach_rate = st.text_input('成果達成率(%)', value='100', help='請輸入百分比值,例如131.0781表示131.0781%')
                 # accumulated_bonus = st.number_input('當季前面月份已領的成果獎金', min_value=0, value=0)
 
@@ -276,14 +250,45 @@ if user_input in region_codes:
                                                                                     perform_per, indicator_multi,
                                                                                     perform_multi, indicator_ach_rate,
                                                                                     perform_ach_rate, m1, m2)
+                st.markdown(
+                    """
+                    <style>
+                    .stMarkdown p {
+                        margin-top: 50px;
+                        margin-bottom: 50px;
+                    }
+                    </style>
+                    """,
+                    unsafe_allow_html=True,
+                )
+                st.write(f"<span style='font-size:21px'>**指標獎金**:</span>",
+                         unsafe_allow_html=True)
+                # st.write(f"<span style='font-size:21px;margin-bottom:-100px;'>**指標獎金**:</span>", unsafe_allow_html=True)
+                # 使用自定义CSS类来调整特定两个st.write之间的间距
+                # st.markdown('<div class="specific-spacing"></div>', unsafe_allow_html=True)
+                #----
+                # # 添加自定义CSS
+                # st.markdown(
+                #     """
+                #     <style>
+                #     .stMarkdown p {
+                #         margin-top: 6px;
+                #         margin-bottom: 6px;
+                #     }
+                #     </style>
+                #     """,
+                #     unsafe_allow_html=True,
+                # )
+                # #---
 
-                # st.write('<br>', unsafe_allow_html=True)
-                with st.container():
-                    st.write(f"<span style='font-size:22px'>**指標獎金**:</span>", unsafe_allow_html=True)
-                    st.write(
-                        f"<span style='font-size:18px; margin-bottom: 0px;'>{position_quota:,.0f} * {indicator_per} * [1 + {indicator_multi} * ({indicator_ach_rate} - 1)] * {m1} = **{indicator_bonus:,.0f}**</span>",
-                        unsafe_allow_html=True)
+                # st.write(
+                #     f"<span style='font-size:18px;margin-bottom:-100px;'>{position_quota:,.0f} * {indicator_per} * [1 + {indicator_multi} * ({indicator_ach_rate} - 1)] * {m1} = **{indicator_bonus:,.0f}**</span>",
+                #     unsafe_allow_html=True)
+                st.write(
+                    f"<span style='font-size:18px'>{position_quota:,.0f} * {indicator_per} * [1 + {indicator_multi} * ({indicator_ach_rate} - 1)] * {m1} = **{indicator_bonus:,.0f}**</span>",
+                    unsafe_allow_html=True)
 
+                # margin-bottom:-100px;
                 # st.write(f"<span style='font-size:22px; margin-bottom:0px;'>**指標獎金**:</span>", unsafe_allow_html=True)
                 # # st.write(f"<span style='font-size:22px; margin-bottom: 0px;'>指標獎金:</span>", unsafe_allow_html=True)
                 #
@@ -293,23 +298,62 @@ if user_input in region_codes:
                 #     f"<span style='font-size:18px'>{position_quota:,.0f} * {indicator_per} * [1 + {indicator_multi} * ({indicator_ach_rate} - 1)] * {m1} = **{indicator_bonus:,.0f}**</span>",
                 #     unsafe_allow_html=True)
                 # st.write('<br>', unsafe_allow_html=True)
-                with st.container():
-                    # st.write(f"<span style='font-size:-100px'><br></span>", unsafe_allow_html=True)
+                # with st.container():
+                #     # st.write(f"<span style='font-size:-100px'><br></span>", unsafe_allow_html=True)
+                #     st.markdown('<p class="specific-spacing"></p>', unsafe_allow_html=True)
+                #     st.write(
+                #         f"<span style='font-size:22px'>**成果獎金(已調整)**<span style='font-size: 15px;'>*最低{lowest}%，最高{highest}%* :</span></span>",
+                #         unsafe_allow_html=True)
+                #     if 1 + perform_multi * (perform_ach_rate - 1) > highest / 100:
+                #         st.write(
+                #             f"<span style='font-size:18px'>{position_quota:,.0f} * {perform_per} *  {highest / 100} * {m2} = **{position_quota * perform_per * (highest / 100) * m2:,.0f}**</span>",
+                #             unsafe_allow_html=True)
+                #     elif 1 + perform_multi * (perform_ach_rate - 1) < lowest / 100:
+                #         st.write(
+                #             f"<span style='font-size:18px'>{position_quota:,.0f} * {perform_per} *  {lowest / 100} * {m2} = **{position_quota * perform_per * (lowest / 100) * m2:,.0f}**</span>",
+                #             unsafe_allow_html=True)
+                #     else:
+                #         st.write(
+                #             f"<span style='font-size:18px'>{position_quota:,.0f} * {perform_per} * [1 + {perform_multi} * ({perform_ach_rate} - 1)] * {m2} = **{n_perform_bonus:,.0f}**</span>",
+                #             unsafe_allow_html=True)
+                #---
+
+                # st.write(f"<span style='font-size:-100px'><br></span>", unsafe_allow_html=True)
+                # st.markdown('<p class="specific-spacing"></p>', unsafe_allow_html=True)
+                # st.write(
+                #     f"<span style='font-size:21px'>**成果獎金(已調整)**<span style='font-size: 15px;'>*最低{lowest}%，最高{highest}%* :</span></span>",
+                #     unsafe_allow_html=True)
+                st.write(
+                    f"<span style='font-size:21px'>**成果獎金**</span>",
+                    unsafe_allow_html=True)
+                # st.markdown('<p class="specific-spacing"></p>', unsafe_allow_html=True)
+                if 1 + perform_multi * (perform_ach_rate - 1) > highest / 100:
                     st.write(
-                        f"<span style='font-size:22px'>**成果獎金(已調整)**<span style='font-size: 15px;'>*最低{lowest}%，最高{highest}%* :</span></span>",
+                        f"<span style='font-size:18px'>{position_quota:,.0f} * {perform_per} *  {highest / 100} * {m2} = **{position_quota * perform_per * (highest / 100) * m2:,.0f}**</span>",
                         unsafe_allow_html=True)
-                    if 1 + perform_multi * (perform_ach_rate - 1) > highest / 100:
-                        st.write(
-                            f"<span style='font-size:18px'>{position_quota:,.0f} * {perform_per} *  {highest / 100} * {m2} = **{position_quota * perform_per * (highest / 100) * m2:,.0f}**</span>",
-                            unsafe_allow_html=True)
-                    elif 1 + perform_multi * (perform_ach_rate - 1) < lowest / 100:
-                        st.write(
-                            f"<span style='font-size:18px'>{position_quota:,.0f} * {perform_per} *  {lowest / 100} * {m2} = **{position_quota * perform_per * (lowest / 100) * m2:,.0f}**</span>",
-                            unsafe_allow_html=True)
-                    else:
-                        st.write(
-                            f"<span style='font-size:18px'>{position_quota:,.0f} * {perform_per} * [1 + {perform_multi} * ({perform_ach_rate} - 1)] * {m2} = **{n_perform_bonus:,.0f}**</span>",
-                            unsafe_allow_html=True)
+                elif 1 + perform_multi * (perform_ach_rate - 1) < lowest / 100:
+                    st.write(
+                        f"<span style='font-size:18px'>{position_quota:,.0f} * {perform_per} *  {lowest / 100} * {m2} = **{position_quota * perform_per * (lowest / 100) * m2:,.0f}**</span>",
+                        unsafe_allow_html=True)
+                else:
+                    st.write(
+                        f"<span style='font-size:18px'>{position_quota:,.0f} * {perform_per} * [1 + {perform_multi} * ({perform_ach_rate} - 1)] * {m2} = **{n_perform_bonus:,.0f}**</span>",
+                        unsafe_allow_html=True)
+                    # # 添加自定义CSS
+                st.markdown(
+                    """
+                    <style>
+                    .stMarkdown p {
+                        margin-top: 5.7px;
+                        margin-bottom: 5.7px;
+                    }
+                    </style>
+                    """,
+                    unsafe_allow_html=True,
+                )
+
+
+                #---
                 # st.write(f"<span style='font-size:22px; margin-bottom: 0px;'>**成果獎金(已調整)**<span style='font-size: 15px;'>*最低{lowest}%，最高{highest}%* :</span></span>", unsafe_allow_html=True)
                 # # st.write(
                 # #     f"<span style='font-size:22px; margin-bottom: 0px;'>成果獎金(已調整)<span style='font-size: 15px;'>最低{lowest}%，最高{highest}% :</span></span>",
@@ -329,7 +373,7 @@ if user_input in region_codes:
 
             # 少了累積已發獎金，調整當月獎金位置
             st.write(f"""
-                <div style='text-align: center; font-size: 35px;'>
+                <div style='text-align:center; font-size: 40px;'>
                     <strong>當月獎金: {total_bonus:,.0f}</strong>
                 </div>
                  """, unsafe_allow_html=True)  # 調整置中、大小、粗體
