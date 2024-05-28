@@ -137,16 +137,27 @@ def calculate_total_bonus(position_quota, indicator_per, perform_per, indicator_
 
 # 創建區域與驗證碼的對應字典
 region_codes = {
-    '0': '海外(在台)',
-    '1': '新加坡',
-    '2': '馬來西亞',
-    '3': '菲律賓',
-    '4': '印尼',
-    '5': '印度',
-    '6': '越南',
-    '7': '泰國'
+    'ov': '海外(在台)',
+    'sin': '新加坡',
+    'ma': '馬來西亞',
+    'ph': '菲律賓',
+    'indo': '印尼',
+    'indi': '印度',
+    'vie': '越南',
+    'th': '泰國'
     # 可以繼續添加其他區域和驗證碼
 }
+# region_codes = {
+#     '0': '海外(在台)',
+#     '1': '新加坡',
+#     '2': '馬來西亞',
+#     '3': '菲律賓',
+#     '4': '印尼',
+#     '5': '印度',
+#     '6': '越南',
+#     '7': '泰國'
+#     # 可以繼續添加其他區域和驗證碼
+# }
 
 
 # 使用者輸入驗證碼 不要讓輸入框那麼長
@@ -409,19 +420,23 @@ if user_input in region_codes:
                     f"<span style='font-size:16px'>**成果獎金(未調整)** = 職位份額 × 成果占比 × [1 + 成果倍數 × (成果達成率 - 1)] × 成果月份調整乘數</span>",
                     unsafe_allow_html=True)
                 st.write(
-                    f"<span style='font-size:16px; margin-left: 126px;'> = {position_quota:,.0f} * {perform_per} * [1 + {perform_multi} * ({perform_ach_rate} - 1)] * {m2} = **{o_perform_bonus:,.0f}**</span>",
+                    f"<span style='font-size:16px; margin-left: 125px;'> = {position_quota:,.0f} * {perform_per} * [1 + {perform_multi} * ({perform_ach_rate} - 1)] * {m2} = **{o_perform_bonus:,.0f}**</span>",
+                    unsafe_allow_html=True)
+                # n = '&nbsp;'
+                # st.write(
+                #     f"<span style='font-size:16px;'>{n*39} = {position_quota:,.0f} * {perform_per} * [1 + {perform_multi} * ({perform_ach_rate} - 1)] * {m2} = **{o_perform_bonus:,.0f}**</span>",
+                #     unsafe_allow_html=True)
+                st.write(
+                    f"<span style='font-size:16px; margin-left: 20px;'>***最低成果獎金** = 職位份額 × 成果占比 × {lowest} % × 成果月份調整乘數 </span>",
                     unsafe_allow_html=True)
                 st.write(
-                    f"<span style='font-size:16px; margin-left: 30px;'>***最低成果獎金** = 職位份額 × 成果占比 × {lowest} % × 成果月份調整乘數 </span>",
+                    f"<span style='font-size:16px; margin-left: 126px;'> = {position_quota:,.0f} * {perform_per} * {lowest / 100} * {m2} = **{position_quota * perform_per * (lowest / 100) * m2:,.0f}**</span>",
                     unsafe_allow_html=True)
                 st.write(
-                    f"<span style='font-size:16px; margin-left: 136px;'> = {position_quota:,.0f} * {perform_per} * {lowest / 100} * {m2} = **{position_quota * perform_per * (lowest / 100) * m2:,.0f}**</span>",
+                    f"<span style='font-size:16px; margin-left: 20px;'>***最高成果獎金** = 職位份額 × 成果占比 × {highest} % × 成果月份調整乘數 </span>",
                     unsafe_allow_html=True)
                 st.write(
-                    f"<span style='font-size:16px; margin-left: 30px;'>***最高成果獎金** = 職位份額 × 成果占比 × {highest} % × 成果月份調整乘數 </span>",
-                    unsafe_allow_html=True)
-                st.write(
-                    f"<span style='font-size:16px; margin-left: 136px;'> = {position_quota:,.0f} * {perform_per} * {highest / 100} * {m2} = **{position_quota * perform_per * (highest / 100) * m2:,.0f}**</span>",
+                    f"<span style='font-size:16px; margin-left: 126px;'> = {position_quota:,.0f} * {perform_per} * {highest / 100} * {m2} = **{position_quota * perform_per * (highest / 100) * m2:,.0f}**</span>",
                     unsafe_allow_html=True)
                 st.write(
                     f"<span style='font-size:16px'>**成果獎金(已調整)** = max(最低成果獎金, min(最高成果獎金, 成果獎金(未調整)))</span>",

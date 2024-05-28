@@ -18,8 +18,8 @@ adj_df = pd.DataFrame({
 # 創建職位的獎金參數對照表 大陸無區域、職位份額
 positions_df = pd.DataFrame({
     '职位': ['电访专员', '产品顾问', '资深顾问', '高级顾问', '业务', '区域业务'],
-    '指标占比': [1, 0.7, 0.7, 0.7, 0.3, 0.3],
-    '成果占比': [0, 0.3, 0.3, 0.3, 0.7, 0.7],
+    '指标占比': [1, 0.5, 0.7, 0.7, 0.3, 0.3],
+    '成果占比': [0, 0, 0.3, 0.3, 0.7, 0.4],
     '指标倍数': [3, 3, 3, 3, 1, 1],
     '成果倍数': [0, 3, 3, 3, 3, 3]
 })
@@ -53,7 +53,7 @@ def calculate_total_bonus(indicator_per, perform_per, indicator_multi, perform_m
 
 
 # 整個網頁置中，但能自由設定比例布局
-c1, c2, c3 = st.columns((1, 2.5, 1))
+c1, c2, c3 = st.columns((1, 1.5, 1))
 with c1:
     st.empty()
 with c2:
@@ -86,26 +86,27 @@ with c2:
     # 獲取特定職位的各獎金參數 排除職位份額、區域
     indicator_per, perform_per, indicator_multi, perform_multi = get_bonus_values(position)
 
-    # 讓selectbox跟inout之間、"指標獎金"跟selectbox之間不要太擠，
-    c1, c2 = st.columns(2)
-    with c1:
-        # st.empty()
-        st.write('<br>', unsafe_allow_html=True)
-    with c2:
-        # st.empty()
-        st.write('<br>', unsafe_allow_html=True)
+    # # 讓selectbox跟inout之間、"指標獎金"跟selectbox之間不要太擠，
+    # c1, c2 = st.columns(2)
+    # with c1:
+    #     # st.empty()
+    #     st.write('<br>', unsafe_allow_html=True)
+    # with c2:
+    #     # st.empty()
+    #     st.write('<br>', unsafe_allow_html=True)
 
     # 使用兩列布局(指標、成果獎金計算過程在右邊)
     col1, col2 = st.columns((1, 2.2))
     # 第一列放使用者輸入(左邊)
     with col1:
+        st.write('<br>', unsafe_allow_html=True)
         # #為了讓使用者可以輸入任意位數的小數，indicator_ach_rate、perform_ach_rate 改用text_input才能存所有位數，
         # number_input只能輸入小數點後兩位(調format也只能強制輸入固定位數)
         # 並用Decimal保留精度
         # 缺點是text_input沒有微調按鍵
         indicator_ach_rate = st.text_input('指标达成率(%)', value='100',
                                            help='请输入百分比值,例如131.0781表示131.0781%')
-        perform_ach_rate = st.text_input('累计成果达成率(%)', value='100',
+        perform_ach_rate = st.text_input('累积*区域*成果达成率(%)', value='100',
                                          help='请输入百分比值,例如131.0781表示131.0781%')
         accumulated_bonus = st.number_input('当季前面月份已领的成果奖金', min_value=0, value=0)
 
@@ -125,15 +126,39 @@ with c2:
 
     # 第二列放計算結果(右邊)
     with col2:
-        st.write('<br>', unsafe_allow_html=True)
-        st.write(f"<span style='font-size:22px'>**指标奖金**:</span>", unsafe_allow_html=True)
+        # st.write('<br>', unsafe_allow_html=True)
+        st.markdown(
+            """
+            <style>
+            .stMarkdown p {
+                margin-top: 50px;
+                margin-bottom: 50px;
+            }
+            </style>
+            """,
+            unsafe_allow_html=True,
+        )
+        st.write(f"<span style='font-size:21px'>**指标奖金**:</span>", unsafe_allow_html=True)
         st.write(
             f"<span style='font-size:18px'>{position_quota:,.0f} * {indicator_per} * [1 + {indicator_multi} * ({indicator_ach_rate} - 1)] * {m1} = **{position_quota * indicator_per * (1 + indicator_multi * (indicator_ach_rate - 1)) * m1:,.0f}**</span>",
             unsafe_allow_html=True)
-        st.write(f"<span style='font-size:22px'>**累计成果奖金**:</span>", unsafe_allow_html=True)
+        st.write(f"<span style='font-size:21px'>**累积** ***区域*** **成果奖金**:</span>", unsafe_allow_html=True)
         st.write(
             f"<span style='font-size:18px'>{position_quota:,.0f} * {perform_per} * [1 + {perform_multi} * ({perform_ach_rate} - 1)] * {m2} = **{position_quota * perform_per * (1 + perform_multi * (perform_ach_rate - 1)) * m2:,.0f}**</span>",
             unsafe_allow_html=True)
+        st.text('*成果奖金之个人业绩部分请自行根据业绩排名计算*')
+
+        st.markdown(
+            """
+            <style>
+            .stMarkdown p {
+                margin-top: 5.7px;
+                margin-bottom: 5.7px;
+            }
+            </style>
+            """,
+            unsafe_allow_html=True,
+        )
 
 
         # 獲取總獎金與其組成
@@ -142,7 +167,7 @@ with c2:
                                                                             perform_ach_rate, accumulated_bonus, m1,
                                                                             m2)
         st.write(f"""
-                    <div style='text-align: center; font-size: 35px;'>
+                    <div style='text-align: center; font-size: 40px;'>
                         <strong>当月奖金: {total_bonus:,.0f}</strong>
                     </div>
                      """, unsafe_allow_html=True)  # 調整置中、大小、粗體
@@ -162,7 +187,7 @@ with c2:
         st.write(f"<span style='font-size:25px'>**奖金参数值**</span>", unsafe_allow_html=True)
         st.write(
             f"职位份额 = {position_quota} , 指标占比 = {indicator_per} , 成果占比 = {perform_per} , 指标倍数 = {indicator_multi} , 成果倍数 = {perform_multi}")
-        st.write(f"*注:除了电访专员，每季前两个月，累积成果奖金为min(2n，3n)。意即，当累积成果达成率小于100%，成果倍数为3；反之，成果倍数为2。而第三个月成果倍数固定为3*")
+        st.write(f"*注:除了电访专员，每季前两个月，累积 *区域* 成果奖金为min(2n，3n)。意即，当累积 *区域* 成果达成率小于100%，成果倍数为3；反之，成果倍数为2。而第三个月成果倍数固定为3*")
 
 
         # 判斷成果獎金(已調整)與累積獎金差額與零大小，返回比較運算子
@@ -185,15 +210,15 @@ with c2:
             f"<span style='font-size:16px'> = {position_quota} * {indicator_per} * [1 + {indicator_multi} * ({indicator_ach_rate} - 1)] * {m1} = "
             f"**{indicator_bonus:,.0f}**</span>", unsafe_allow_html=True)
         st.write(
-            f"<span style='font-size:16px'>**累积成果奖金** = 职位份额×成果占比×[1+成果倍数×(累积成果达成率-1)]×成果月份调整乘数</span>",
+            f"<span style='font-size:16px'>**累积** ***区域*** **成果奖金** = 职位份额×成果占比×[1+成果倍数×(累积 *区域* 成果达成率-1)]×成果月份调整乘数</span>",
             unsafe_allow_html=True)
         st.write(
             f"<span style='font-size:16px'> = {position_quota} * {perform_per} * [1 + {perform_multi} * ({perform_ach_rate} - 1)] * {m2} = "
             f"**{perform_bonus:,.0f}**</span>", unsafe_allow_html=True)
         st.write(
-            f"**累积成果奖金- 当季前面月份已领的成果奖金** = {perform_bonus:,.0f} - {accumulated_bonus} = **{perform_bonus_accumulated_bonus_diff:,.0f} {compare_differ(perform_bonus_accumulated_bonus_diff)} 0** ")
+            f"**累积** ***区域*** **成果奖金**- 当季前面月份已领的成果奖金** = {perform_bonus:,.0f} - {accumulated_bonus} = **{perform_bonus_accumulated_bonus_diff:,.0f} {compare_differ(perform_bonus_accumulated_bonus_diff)} 0** ")
         st.write(
-            f"<span style='font-size:22px'>***当月奖金*** *= 指标奖金 + max(0, 累积成果奖金 - 当季前面月份已领的成果奖金) = "
+            f"<span style='font-size:22px'>***当月奖金*** *= 指标奖金 + max(0, 累积 *区域* 成果奖金 - 当季前面月份已领的成果奖金) = "
             f"{indicator_bonus:,.0f} + {max(0, perform_bonus_accumulated_bonus_diff):,.0f} =* ***{total_bonus:,.0f}***</span>",
             unsafe_allow_html=True)
 with c3:
