@@ -15,6 +15,14 @@ adj_df_ost = pd.DataFrame({
     'm2': [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 })
 
+# 創建大陸(在台)的年、月調整乘數對照表  1、2月過年
+adj_df_osc = pd.DataFrame({
+    'Year': [2024] * 12 + [2025] * 12,
+    'Month': list(range(1, 13)) * 2,
+    'm1': [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],  # 假設海外1月過年
+    'm2': [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+})
+
 # 創建新加坡的年、月調整乘數對照表  1、2月過年
 adj_df_sig = pd.DataFrame({
     'Year': [2024] * 12 + [2025] * 12,
@@ -74,6 +82,7 @@ adj_df_thai = pd.DataFrame({
 # 將不同區域的DataFrame存儲在字典adj_dfs中
 adj_dfs = {
     'Overseas (Taiwan)': adj_df_ost,
+    'Overseas (China)': adj_df_osc,  # 大陸在台
     'Singapore': adj_df_sig,
     'Malaysia': adj_df_mal,
     'Philippines': adj_df_phi,
@@ -136,13 +145,14 @@ def calculate_total_bonus(position_quota, indicator_percentage, performance_perc
 
 # 創建區域與驗證碼的對應字典
 region_codes = {
-    'ov': 'Overseas (Taiwan)',
-    'sin': 'Singapore',
-    'ma': 'Malaysia',
+    'tw': 'Overseas (Taiwan)',
+    'cn': 'Overseas (China)',  # 大陸在台
+    'sg': 'Singapore',
+    'my': 'Malaysia',
     'ph': 'Philippines',
-    'indo': 'Indonesia',
-    'indi': 'India',
-    'vie': 'Vietnam',
+    'id': 'Indonesia',
+    'in': 'India',
+    'vn': 'Vietnam',
     'th': 'Thailand'
     # 可以繼續添加其他區域和驗證碼
 }
@@ -153,7 +163,7 @@ with c2:
     # 使用 st.empty() 創建一个占位符
     input_placeholder = st.empty()
     # 在占位符中顯示文本输入框
-    user_input = input_placeholder.text_input('Please enter your region verification code to access the calculator:', '')
+    user_input = input_placeholder.text_input('Please enter your region verification code to access the calculator:', '').lower()
 
 # 檢查驗證碼並設定區域
 if user_input in region_codes:
@@ -216,7 +226,7 @@ if user_input in region_codes:
             with col1:
                 st.write('<br>', unsafe_allow_html=True)  # 讓selectbox跟input達成率之間不要太擠
                 indicator_ach_rate = st.text_input('Indicator Achievement Rate (%)', value='100', help='Please enter the percentage value, e.g., 131.0781 means 131.0781%')
-                perform_ach_rate = st.text_input('Regional Performance Achievement Rate (%)', value='100', help='Please enter the percentage value, e.g., 131.0781 means 131.0781%')
+                perform_ach_rate = st.text_input('Local Performance Achievement Rate (%)', value='100', help='Please enter the percentage value, e.g., 131.0781 means 131.0781%')
 
                 # 將百分比值轉換為小數 .strip('%')確保就算使用者多輸入%符號也沒差
                 indicator_ach_rate = float(Decimal(indicator_ach_rate.strip('%')) / 100)
@@ -246,7 +256,7 @@ if user_input in region_codes:
                     f"<span style='font-size:18px'>{position_quota:,.0f} * {indicator_percentage} * [1 + {indicator_multiplier} * ({indicator_ach_rate} - 1)] * {m1} = **{indicator_bonus:,.0f}**</span>",
                     unsafe_allow_html=True)
 
-                st.write(f"<span style='font-size:21px'>**Regional Performance Bonus:**</span>", unsafe_allow_html=True)
+                st.write(f"<span style='font-size:21px'>**Local Performance Bonus:**</span>", unsafe_allow_html=True)
                 if 1 + performance_multiplier * (perform_ach_rate - 1) > highest / 100:
                     st.write(
                         f"<span style='font-size:18px'>{position_quota:,.0f} * {performance_percentage} *  {highest / 100} * {m2} = **{position_quota * performance_percentage * (highest / 100) * m2:,.0f}**</span>",
@@ -260,18 +270,7 @@ if user_input in region_codes:
                         f"<span style='font-size:18px'>{position_quota:,.0f} * {performance_percentage} * [1 + {performance_multiplier} * ({perform_ach_rate} - 1)] * {m2} = **{adjusted_performance_bonus:,.0f}**</span>",
                         unsafe_allow_html=True)
                 # 註解
-                st.write('*Please calculate the individual performance part of the performance bonus based on the performance ranking.*')
-                st.markdown(
-                    """
-                    <style>
-                    .stMarkdown p {
-                        margin-top: 5.7px;
-                        margin-bottom: 5.7px;
-                    }
-                    </style>
-                    """,
-                    unsafe_allow_html=True,
-                )
+                # st.write('*Please calculate the individual performance bonus based on the performance ranking.*')
 
 
             # 少了累積已發獎金，調整當月獎金位置
@@ -283,9 +282,20 @@ if user_input in region_codes:
             # 附註計算限制
             st.write(f"""
                 <div style='text-align: center; font-size: 15px;'>
-                       *Bonus amount does not include attendance, collections, rewards and penalties, etc.
+                       *Bonus amount does not include individual performance bonus, attendance, collections, rewards and penalties, etc.*
                 </div>
                 """, unsafe_allow_html=True)
+            st.markdown(
+                """
+                <style>
+                .stMarkdown p {
+                    margin-top: 5.7px;
+                    margin-bottom: 5.7px;
+                }
+                </style>
+                """,
+                unsafe_allow_html=True,
+            )
 
         # 使用expander隱藏詳細過程
             with st.expander("Click to see detailed process", expanded=False):
@@ -294,9 +304,7 @@ if user_input in region_codes:
                 st.write(f"<span style='font-size:25px'>**Monthly Adjustment Multipliers**</span>", unsafe_allow_html=True)
                 st.write(f"Indicator Monthly Adjustment Multiplier = {m1} , Performance Monthly Adjustment Multiplier = {m2}")
                 st.write(f"<span style='font-size:25px'>**Bonus Parameter Values**</span>", unsafe_allow_html=True)
-                # st.write(
-                #     f"Position Quota = {position_quota:,.0f} , Indicator Percentage = {indicator_percentage} , Performance Percentage = {performance_percentage} , "
-                #     f"Indicator Multiplier = {indicator_multiplier} , Performance Multiplier = {performance_multiplier}")
+
                 st.write(f"Position Quota = {position_quota:,.0f} , Indicator Percentage = {indicator_percentage} , Performance Percentage = {performance_percentage} ,")
                 st.write(f"Indicator Multiplier = {indicator_multiplier} , Performance Multiplier = {performance_multiplier}")
 
@@ -307,48 +315,47 @@ if user_input in region_codes:
                 st.write(
                     f"<span style='font-size:16px'>**Indicator Bonus** = Position Quota × Indicator Percentage"
                     f" <br>{n*35}× [1 + Indicator Multiplier × (Indicator Achievement Rate - 1)] "
-                    f" <br>{n*35}× Indicator Monthly Adjustment Multiplier</span>",
+                    f" <br>{n*35}× Indicator Monthly Adjustment Multiplier"
+                    f" <br>{n*35}= {position_quota:,.0f} * {indicator_percentage} * [1 + {indicator_multiplier} * ({indicator_ach_rate} - 1)] * {m1} = **{indicator_bonus:,.0f}**</span>",
+                    unsafe_allow_html=True)
+
+                # st.write(
+                #     f"<span style='font-size:16px; margin-left: 112px;'> = {position_quota:,.0f} * {indicator_percentage} * [1 + {indicator_multiplier} * ({indicator_ach_rate} - 1)] * {m1} = **{indicator_bonus:,.0f}**</span>",
+                #     unsafe_allow_html=True)
+                st.write(
+                    f"<span style='font-size:16px'>**Local Performance Bonus (Unadjusted)** = Position Quota × Performance Percentage "
+                    f" <br>{n*85}× [1 + Performance Multiplier × (Local Performance Achievement Rate - 1)] "
+                    f" <br>{n*85}× Performance Monthly Adjustment Multiplier "
+                    f" <br>{n*85}= {position_quota:,.0f} * {performance_percentage} * [1 + {performance_multiplier} * ({perform_ach_rate} - 1)] * {m2} = **{unadjusted_performance_bonus:,.0f}**</span>",
+                    unsafe_allow_html=True)  # 舊版{n*72}
+                # st.write(
+                #     f"<span style='font-size:16px; margin-left: 232px;'> = {position_quota:,.0f} * {performance_percentage} * [1 + {performance_multiplier} * ({perform_ach_rate} - 1)] * {m2} = **{unadjusted_performance_bonus:,.0f}**</span>",
+                #     unsafe_allow_html=True)
+                st.write(
+                    f"<span style='font-size:16px; margin-left: 21px;'>***Minimum Local Performance Bonus** = Position Quota × Performance Percentage "
+                    f" <br>{n*86}× {lowest} % × Performance Monthly Adjustment Multiplier "
+                    f" <br>{n*86}= {position_quota:,.0f} * {performance_percentage} * {lowest / 100} * {m2} = **{position_quota * performance_percentage * (lowest / 100) * m2:,.0f}**</span>",
                     unsafe_allow_html=True)
                 # st.write(
-                #     f"<pre style='font-size:16px'>**Indicator Bonus** = Position Quota × Indicator Percentage "
-                #     f"                                                × [1 + Indicator Multiplier × (Indicator Achievement Rate - 1)] "
-                #     f"                                                × Indicator Monthly Adjustment Multiplier</pre>",
+                #     f"<span style='font-size:16px; margin-left: 234px;'> = {position_quota:,.0f} * {performance_percentage} * {lowest / 100} * {m2} = **{position_quota * performance_percentage * (lowest / 100) * m2:,.0f}**</span>",
                 #     unsafe_allow_html=True)
-
                 st.write(
-                    f"<span style='font-size:16px; margin-left: 112px;'> = {position_quota:,.0f} * {indicator_percentage} * [1 + {indicator_multiplier} * ({indicator_ach_rate} - 1)] * {m1} = **{indicator_bonus:,.0f}**</span>",
+                    f"<span style='font-size:16px; margin-left: 20px;'>***Maximum Local Performance Bonus** = Position Quota × Performance Percentage "
+                    f" <br>{n*86}× {highest} % × Performance Monthly Adjustment Multiplier"
+                    f" <br>{n*86}= {position_quota:,.0f} * {performance_percentage} * {highest / 100} * {m2} = **{position_quota * performance_percentage * (highest / 100) * m2:,.0f}** </span>",
                     unsafe_allow_html=True)
+                # st.write(
+                #     f"<span style='font-size:16px; margin-left: 237px;'> = {position_quota:,.0f} * {performance_percentage} * {highest / 100} * {m2} = **{position_quota * performance_percentage * (highest / 100) * m2:,.0f}**</span>",
+                #     unsafe_allow_html=True)
                 st.write(
-                    f"<span style='font-size:16px'>**Regional Performance Bonus (Unadjusted)** = Position Quota × Performance Percentage "
-                    f" <br>{n*72}× [1 + Performance Multiplier × (Performance Achievement Rate - 1)] "
-                    f" <br>{n*72}× Performance Monthly Adjustment Multiplier</span>",
-                    unsafe_allow_html=True)
-                st.write(
-                    f"<span style='font-size:16px; margin-left: 232px;'> = {position_quota:,.0f} * {performance_percentage} * [1 + {performance_multiplier} * ({perform_ach_rate} - 1)] * {m2} = **{unadjusted_performance_bonus:,.0f}**</span>",
-                    unsafe_allow_html=True)
-                st.write(
-                    f"<span style='font-size:16px; margin-left: 20px;'>***Minimum Regional Performance Bonus** = Position Quota × Performance Percentage "
-                    f" <br>{n*73}× {lowest} % × Performance Monthly Adjustment Multiplier </span>",
-                    unsafe_allow_html=True)
-                st.write(
-                    f"<span style='font-size:16px; margin-left: 234px;'> = {position_quota:,.0f} * {performance_percentage} * {lowest / 100} * {m2} = **{position_quota * performance_percentage * (lowest / 100) * m2:,.0f}**</span>",
-                    unsafe_allow_html=True)
-                st.write(
-                    f"<span style='font-size:16px; margin-left: 20px;'>***Maximum Regional Performance Bonus** = Position Quota × Performance Percentage "
-                    f" <br>{n*74}× {highest} % × Performance Monthly Adjustment Multiplier </span>",
-                    unsafe_allow_html=True)
-                st.write(
-                    f"<span style='font-size:16px; margin-left: 237px;'> = {position_quota:,.0f} * {performance_percentage} * {highest / 100} * {m2} = **{position_quota * performance_percentage * (highest / 100) * m2:,.0f}**</span>",
-                    unsafe_allow_html=True)
-                st.write(
-                    f"<span style='font-size:16px'>**Regional Pformance Bonus (Adjusted)** <br>= max(Minimum Regional Performance Bonus, min(Maximum Regional Performance Bonus, Regional Performance Bonus (Unadjusted)))</span>",
+                    f"<span style='font-size:16px'>**Local Performance Bonus (Adjusted)** <br>= max(Minimum Local Performance Bonus, min(Maximum Local Performance Bonus, Local Performance Bonus (Unadjusted)))</span>",
                     unsafe_allow_html=True)
                 st.write(
                     f"<span style='font-size:16px'> = max({base_performance_bonus * (lowest/100) * m2:,.0f}, min({base_performance_bonus * (highest/100) * m2:,.0f}, {unadjusted_performance_bonus:,.0f})) = **{adjusted_performance_bonus:,.0f}**</span>",
                     unsafe_allow_html=True)
                 st.write(
-                    f"<span style='font-size:22px'>***Monthly Bonus*** *= Indicator Bonus + Regional Performance Bonus (Adjusted) "
-                    f"<br>{n*32}= {indicator_bonus:,.0f} + {adjusted_performance_bonus:,.0f} =* ***{total_bonus:,.0f}***</span>",
+                    f"<span style='font-size:23px'>**Monthly Bonus** = Indicator Bonus + Local Performance Bonus (Adjusted) "
+                    f"<br>{n*33}= {indicator_bonus:,.0f} + {adjusted_performance_bonus:,.0f} = **{total_bonus:,.0f}**</span>",
                     unsafe_allow_html=True)
     # with c3:
     #     st.empty()

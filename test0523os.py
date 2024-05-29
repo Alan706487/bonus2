@@ -93,8 +93,8 @@ positions_df = pd.DataFrame({
     '職位份額': [16000, 18000, 20000, 22000, 1800, 1800, 2500, 25000, 32000, 39000, 50000,
               3300000, 4100000, 4300000, 5200000, 27000, 35000, 38000, 40000, 7500000, 10000000,
               12000000, 15000000, 18000, 22000, 24000, 31000],
-    '指標占比': [1, 0.7, 0.7, 0.7, 0.3, 0.3, 0.3, 1, 0.7, 0.3, 0.3, 1, 0.7, 0.3, 0.3, 1, 0.7, 0.3, 0.3, 1, 0.7, 0.3, 0.3, 1, 0.7, 0.3, 0.3],
-    '成果占比': [0, 0.3, 0.3, 0.3, 0.7, 0.7, 0.7, 0, 0.3, 0.7, 0.7, 0, 0.3, 0.7, 0.7, 0, 0.3, 0.7, 0.7, 0, 0.3, 0.7, 0.7, 0, 0.3, 0.7, 0.7],
+    '指標占比': [1, 0.5, 0.7, 0.7, 0.3, 0.3, 0.3, 1, 0.5, 0.3, 0.3, 1, 0.5, 0.3, 0.3, 1, 0.5, 0.3, 0.3, 1, 0.5, 0.3, 0.3, 1, 0.5, 0.3, 0.3],
+    '成果占比': [0, 0, 0.3, 0.3, 0.7, 0.4, 0.4, 0, 0, 0.7, 0.4, 0, 0, 0.7, 0.4, 0, 0, 0.7, 0.4, 0, 0, 0.7, 0.4, 0, 0, 0.7, 0.4],
     '指標倍數': [3, 3, 3, 3, 1, 1, 1, 3, 3, 1, 1, 3, 3, 1, 1, 3, 3, 1, 1, 3, 3, 1, 1, 3, 3, 1, 1],
     '成果倍數': [0, 1, 1, 1, 3, 3, 3, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1]
 })
@@ -137,13 +137,13 @@ def calculate_total_bonus(position_quota, indicator_per, perform_per, indicator_
 
 # 創建區域與驗證碼的對應字典
 region_codes = {
-    'ov': '海外(在台)',
-    'sin': '新加坡',
-    'ma': '馬來西亞',
+    'tw': '海外(在台)',
+    'sg': '新加坡',
+    'my': '馬來西亞',
     'ph': '菲律賓',
-    'indo': '印尼',
-    'indi': '印度',
-    'vie': '越南',
+    'id': '印尼',
+    'in': '印度',
+    'vn': '越南',
     'th': '泰國'
     # 可以繼續添加其他區域和驗證碼
 }
@@ -166,7 +166,7 @@ with c2:
     # 使用 st.empty() 創建一个占位符
     input_placeholder = st.empty()
     # 在占位符中顯示文本输入框
-    user_input = input_placeholder.text_input('請輸入您的區域驗證碼來訪問試算器:', '')
+    user_input = input_placeholder.text_input('請輸入您的區域驗證碼來訪問試算器:', '').lower()  # 輸入大小寫皆可
 
 # 檢查驗證碼並設定區域
 if user_input in region_codes:
@@ -178,7 +178,7 @@ if user_input in region_codes:
     # 需要根據區域調整的參數或功能，你可以在這裡加入
     # 可以使用區域變量 `region` 來加載和顯示特定區域的數據
     # 整個網頁置中，但能自由設定比例布局
-    c1, c2, c3 = st.columns((1, 1.5, 1))  # tw、cn 2.5
+    c1, c2, c3 = st.columns((1, 2, 1))  # tw、cn 2.5
     with c2:
         # 設定 Streamlit 的網頁標題
         st.write("<h1 style='font-size: 44px;'>獎金簡易試算器<span style='font-size: 30px;'>(參考用)</span></h1>", unsafe_allow_html=True)
@@ -234,7 +234,7 @@ if user_input in region_codes:
             #     # st.empty()
             #     st.write('<br>', unsafe_allow_html=True)
             # 使用兩列布局(指標、累積成果獎金計算過程在右邊)
-            col1, col2 = st.columns((1, 2))
+            col1, col2 = st.columns((1, 1.8))
             # 第一列放使用者輸入(左邊)
             with col1:
                 st.write('<br>', unsafe_allow_html=True)  # 讓selectbox跟input達成率之間不要太擠
@@ -244,7 +244,7 @@ if user_input in region_codes:
                 # 缺點是text_input沒有微調按鍵
                 indicator_ach_rate = st.text_input('指標達成率(%)', value='100', help='請輸入百分比值,例如131.0781表示131.0781%')
                 # st.write('<br>', unsafe_allow_html=True)
-                perform_ach_rate = st.text_input('成果達成率(%)', value='100', help='請輸入百分比值,例如131.0781表示131.0781%')
+                perform_ach_rate = st.text_input('*當區* 成果達成率(%)', value='100', help='請輸入百分比值,例如131.0781表示131.0781%')
                 # accumulated_bonus = st.number_input('當季前面月份已領的成果獎金', min_value=0, value=0)
 
                 # 將百分比值轉換為小數 .strip('%')確保就算使用者多輸入%符號也沒差
@@ -333,9 +333,9 @@ if user_input in region_codes:
                 # st.markdown('<p class="specific-spacing"></p>', unsafe_allow_html=True)
                 # st.write(
                 #     f"<span style='font-size:21px'>**成果獎金(已調整)**<span style='font-size: 15px;'>*最低{lowest}%，最高{highest}%* :</span></span>",
-                #     unsafe_allow_html=True)
+                #     unsafe_allow_html=True)*當區*
                 st.write(
-                    f"<span style='font-size:21px'>**成果獎金**</span>",
+                    f"<span style='font-size:21px'>***當區* 成果獎金**</span>",
                     unsafe_allow_html=True)
                 # st.markdown('<p class="specific-spacing"></p>', unsafe_allow_html=True)
                 if 1 + perform_multi * (perform_ach_rate - 1) > highest / 100:
@@ -350,18 +350,20 @@ if user_input in region_codes:
                     st.write(
                         f"<span style='font-size:18px'>{position_quota:,.0f} * {perform_per} * [1 + {perform_multi} * ({perform_ach_rate} - 1)] * {m2} = **{n_perform_bonus:,.0f}**</span>",
                         unsafe_allow_html=True)
+
+                st.text('*個人成果獎金部分請自行根據業績排名計算*')
                     # # 添加自定义CSS
-                st.markdown(
-                    """
-                    <style>
-                    .stMarkdown p {
-                        margin-top: 5.7px;
-                        margin-bottom: 5.7px;
-                    }
-                    </style>
-                    """,
-                    unsafe_allow_html=True,
-                )
+                # st.markdown(
+                #     """
+                #     <style>
+                #     .stMarkdown p {
+                #         margin-top: 5.7px;
+                #         margin-bottom: 5.7px;
+                #     }
+                #     </style>
+                #     """,
+                #     unsafe_allow_html=True,
+                # )
 
 
                 #---
@@ -395,7 +397,19 @@ if user_input in region_codes:
                 </div>
                 """, unsafe_allow_html=True)
 
-        # 使用expander隱藏詳細過程
+            st.markdown(
+                """
+                <style>
+                .stMarkdown p {
+                    margin-top: 5.7px;
+                    margin-bottom: 5.7px;
+                }
+                </style>
+                """,
+                unsafe_allow_html=True,
+            )
+
+            # 使用expander隱藏詳細過程
             with st.expander("點擊查看詳細過程", expanded=False):
                 # if position != '':
                 st.write("")
